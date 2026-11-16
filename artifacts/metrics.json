@@ -1,9 +1,43 @@
 {
-  "model": "ResNet18",
-  "accuracy": 0.0,
-  "precision_macro": 0.0,
-  "recall_macro": 0.0,
-  "f1_macro": 0.0,
-  "classes": ["glioma", "meningioma", "notumor", "pituitary"],
-  "note": "Populate with final evaluation results from Colab notebook 05/test set."
+  "selected_model": "EfficientNet-B0",
+  "checkpoint_epoch": 21,
+  "test_dataset_size": 889,
+  "metrics": {
+    "accuracy": 0.9831,
+    "macro_f1": 0.9826,
+    "balanced_accuracy": 0.9829,
+    "misclassified_samples": 15
+  },
+  "per_class": {
+    "glioma": {
+      "precision": 0.982,
+      "recall": 0.985,
+      "f1_score": 0.983,
+      "support": 328
+    },
+    "meningioma": {
+      "precision": 0.982,
+      "recall": 0.968,
+      "f1_score": 0.975,
+      "support": 221
+    },
+    "no_tumor": {
+      "precision": 0.975,
+      "recall": 0.983,
+      "f1_score": 0.979,
+      "support": 118
+    },
+    "pituitary": {
+      "precision": 0.991,
+      "recall": 0.995,
+      "f1_score": 0.993,
+      "support": 222
+    }
+  },
+  "classes": [
+    "glioma",
+    "meningioma",
+    "no_tumor",
+    "pituitary"
+  ]
 }

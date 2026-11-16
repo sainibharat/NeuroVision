@@ -1,18 +1,27 @@
 # Experimental Results & Model Benchmarks
 
-## Overview
-This document records the comparative performance of the baseline CNN, ResNet18, and EfficientNet-B0 evaluated across the test partition.
+## 1. Final Model Performance on Held-Out Test Set (Notebook 05)
 
-## Performance Comparison Table
+- **Selected Model Architecture**: EfficientNet-B0 (Pretrained on ImageNet, fine-tuned on Brain MRI)
+- **Checkpoint Epoch**: 21
+- **Total Test Samples**: 889
+- **Overall Test Accuracy**: **98.31%** (874 / 889 correct, only 15 errors)
+- **Macro-Averaged F1-Score**: **0.9826**
+- **Balanced Accuracy**: **0.9829**
 
-| Architecture | Parameters | Accuracy (%) | Macro Precision | Macro Recall | Macro F1-Score | Inference Latency (ms) |
-|---|---|---|---|---|---|---|
-| **Baseline CNN** | ~2.5M | Pending | Pending | Pending | Pending | ~5 ms |
-| **ResNet18** | ~11.2M | Pending | Pending | Pending | Pending | ~12 ms |
-| **EfficientNet-B0** | ~4.0M | Pending | Pending | Pending | Pending | ~15 ms |
+### Per-Class Test Breakdown
 
-*(Metrics will be updated directly from the notebook 05 evaluation outputs)*
+| Class | Precision | Recall | F1-Score | Support (Test Images) |
+|---|---|---|---|---|
+| **Glioma** | 0.982 | 0.985 | 0.983 | 328 |
+| **Meningioma** | 0.982 | 0.968 | 0.975 | 221 |
+| **No Tumor** | 0.975 | 0.983 | 0.979 | 118 |
+| **Pituitary** | 0.991 | 0.995 | 0.993 | 222 |
+| **Macro Average** | **0.982** | **0.983** | **0.983** | **889** |
 
-## Confusion Matrix & Error Analysis
-- Summarize misclassifications (e.g. Glioma vs. Meningioma overlap).
-- Document boundary and low-contrast scan cases.
+---
+
+## 2. Model Selection Rationale (Notebooks 03 & 04)
+- **Baseline CNN**: Provided an initial baseline with simple 4-block architecture.
+- **ResNet-18**: Strong convergence and feature extraction from ImageNet pretraining.
+- **EfficientNet-B0**: Selected as the final production model due to superior macro-F1 (0.983), compact parameter footprint (~4.0M parameters), and excellent Grad-CAM localization on `model.features[-1]`.
