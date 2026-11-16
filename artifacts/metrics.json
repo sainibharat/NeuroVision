@@ -1,0 +1,9 @@
+{
+  "model": "ResNet18",
+  "accuracy": 0.0,
+  "precision_macro": 0.0,
+  "recall_macro": 0.0,
+  "f1_macro": 0.0,
+  "classes": ["glioma", "meningioma", "notumor", "pituitary"],
+  "note": "Populate with final evaluation results from Colab notebook 05/test set."
+}
