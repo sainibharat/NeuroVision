@@ -1,11 +1,10 @@
 """
 Backend inference manager for NeuroVision.
-Maintains a singleton Predictor instance to avoid reloading models on every request.
+Maintains a singleton Predictor instance loading the trained EfficientNet-B0 model.
 """
 
 import os
 import sys
-from PIL import Image
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -19,7 +18,7 @@ _predictor_instance = None
 
 def get_predictor() -> NeuroVisionPredictor:
     """
-    Returns the cached NeuroVisionPredictor singleton.
+    Returns the cached NeuroVisionPredictor singleton loaded with the best trained model.
     """
     global _predictor_instance
     if _predictor_instance is None:
@@ -28,6 +27,6 @@ def get_predictor() -> NeuroVisionPredictor:
         _predictor_instance = NeuroVisionPredictor(
             model_path=model_path,
             class_names_path=classes_path,
-            model_type="resnet18"
+            model_type="efficientnet_b0"
         )
     return _predictor_instance
