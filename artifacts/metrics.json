@@ -1,43 +1,103 @@
 {
-  "selected_model": "EfficientNet-B0",
-  "checkpoint_epoch": 21,
-  "test_dataset_size": 889,
-  "metrics": {
-    "accuracy": 0.9831,
-    "macro_f1": 0.9826,
-    "balanced_accuracy": 0.9829,
-    "misclassified_samples": 15
-  },
-  "per_class": {
-    "glioma": {
-      "precision": 0.982,
-      "recall": 0.985,
-      "f1_score": 0.983,
-      "support": 328
-    },
-    "meningioma": {
-      "precision": 0.982,
-      "recall": 0.968,
-      "f1_score": 0.975,
-      "support": 221
-    },
-    "no_tumor": {
-      "precision": 0.975,
-      "recall": 0.983,
-      "f1_score": 0.979,
-      "support": 118
-    },
-    "pituitary": {
-      "precision": 0.991,
-      "recall": 0.995,
-      "f1_score": 0.993,
-      "support": 222
-    }
+  "model": "EfficientNet-B0 (ImageNet-pretrained, fine-tuned)",
+  "input_size": 224,
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
   },
   "classes": [
     "glioma",
     "meningioma",
     "no_tumor",
     "pituitary"
-  ]
+  ],
+  "n_test": 889,
+  "test": {
+    "accuracy": 0.983127109111361,
+    "macro_f1": 0.9825904156942905,
+    "balanced_accuracy": 0.9829070580923254,
+    "errors": 15,
+    "per_class": {
+      "glioma": {
+        "precision": 0.9817629179331308,
+        "recall": 0.9847560975609756,
+        "f1": 0.9832572298325722,
+        "support": 328
+      },
+      "meningioma": {
+        "precision": 0.981651376146789,
+        "recall": 0.9683257918552036,
+        "f1": 0.9749430523917996,
+        "support": 221
+      },
+      "no_tumor": {
+        "precision": 0.9747899159663865,
+        "recall": 0.9830508474576272,
+        "f1": 0.9789029535864979,
+        "support": 118
+      },
+      "pituitary": {
+        "precision": 0.9910313901345291,
+        "recall": 0.9954954954954955,
+        "f1": 0.9932584269662922,
+        "support": 222
+      }
+    },
+    "confusion_matrix": [
+      [
+        323,
+        4,
+        1,
+        0
+      ],
+      [
+        5,
+        214,
+        1,
+        1
+      ],
+      [
+        1,
+        0,
+        116,
+        1
+      ],
+      [
+        0,
+        0,
+        1,
+        221
+      ]
+    ],
+    "tumor_sensitivity": 0.9961089494163424,
+    "no_tumor_specificity": 0.9830508474576272
+  },
+  "validation": {
+    "accuracy": 0.9843,
+    "macro_f1": 0.983,
+    "note": "from notebook 04; best epoch selected on validation"
+  },
+  "comparison_validation": {
+    "baseline_cnn": {
+      "accuracy": 0.9204,
+      "macro_f1": 0.9222
+    },
+    "resnet18": {
+      "accuracy": 0.9664,
+      "macro_f1": 0.9657
+    },
+    "efficientnet_b0": {
+      "accuracy": 0.9843,
+      "macro_f1": 0.983
+    }
+  },
+  "disclaimer": "Educational/research prototype, not a clinically validated diagnostic system."
 }
