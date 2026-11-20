@@ -217,4 +217,4 @@ NeuroVision is developed strictly as a research and educational technical portfo
 
 ## 📜 License
 
-Distributed under the [MIT License](LICENSE).
+Distributed under the [MIT Educational & Non-Commercial License](LICENSE). Strictly for academic and educational research purposes only (Not for sale or commercial distribution).

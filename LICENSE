@@ -1,0 +1,26 @@
+MIT License (Educational & Non-Commercial Use Only)
+
+Copyright (c) 2026 Bharat Saini & NeuroVision Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software for academic, research, and educational purposes only, subject
+to the following conditions:
+
+1. Non-Commercial Restriction (Not For Sale):
+   This software, its source code, trained model weights, and derived artifacts
+   are strictly for educational and academic research purposes only. Under no
+   circumstances may this software, in whole or in part, be sold, licensed for a fee,
+   monetized, or utilized for commercial purposes or clinical patient billing.
+
+2. Attribution:
+   The above copyright notice, this permission notice, and this non-commercial
+   condition notice shall be included in all copies or substantial portions of the Software.
+
+3. Clinical Disclaimer:
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. THIS APPLICATION IS AN
+   EDUCATIONAL RESEARCH PROTOTYPE AND NOT AN FDA-CLEARED MEDICAL DIAGNOSTIC TOOL.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THIS SOFTWARE.
