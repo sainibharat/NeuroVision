@@ -1,282 +1,261 @@
 import React, { useState } from 'react';
-import { Sparkles, RefreshCw, AlertCircle, FileCheck, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Sparkles, Brain, RefreshCw, ArrowRight, FileCheck, Layers } from 'lucide-react';
 import Dropzone from '../components/Dropzone';
-import ProbabilityBar from '../components/ProbabilityBar';
-import HeatmapViewer from '../components/HeatmapViewer';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import SectionHeader from '../components/ui/SectionHeader';
 import { predictMri } from '../services/api';
 
 // Realistic sample generator for instant browser testing
 function createSampleSvg(type) {
   const configs = {
-    glioma: { title: 'Glioma Scan', color: '#ff4444', cx: 160, cy: 100, r: 28 },
-    meningioma: { title: 'Meningioma Scan', color: '#ffbb33', cx: 180, cy: 60, r: 20 },
-    pituitary: { title: 'Pituitary Scan', color: '#aa66cc', cx: 112, cy: 135, r: 16 },
-    notumor: { title: 'Healthy Scan', color: '#00C851', cx: -50, cy: -50, r: 0 }
+    glioma: { title: 'Glioma Scan', color: '#ff4444', cx: 155, cy: 95, r: 28 },
+    meningioma: { title: 'Meningioma Scan', color: '#ffbb33', cx: 175, cy: 65, r: 22 },
+    pituitary: { title: 'Pituitary Scan', color: '#aa66cc', cx: 112, cy: 138, r: 18 },
+    no_tumor: { title: 'Healthy Scan', color: '#00C851', cx: -50, cy: -50, r: 0 }
   };
   const c = configs[type] || configs.glioma;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="224" height="224" viewBox="0 0 224 224">
     <rect width="224" height="224" fill="#0d1117"/>
-    <ellipse cx="112" cy="112" rx="90" ry="98" fill="#21262d" stroke="#30363d" stroke-width="4"/>
+    <ellipse cx="112" cy="112" rx="90" ry="98" fill="#1c2128" stroke="#30363d" stroke-width="3"/>
     <path d="M112,20 Q110,112 112,204" stroke="#161b22" stroke-width="2"/>
     <ellipse cx="90" cy="100" rx="14" ry="24" fill="#0d1117"/>
     <ellipse cx="134" cy="100" rx="14" ry="24" fill="#0d1117"/>
-    ${c.r > 0 ? `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="${c.color}" opacity="0.85" filter="blur(2px)"/>` : ''}
-    <text x="112" y="215" fill="#8b949e" font-size="10" text-anchor="middle" font-family="sans-serif">Sample: ${c.title}</text>
+    ${c.r > 0 ? `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}" fill="${c.color}" opacity="0.88" filter="blur(2px)"/>` : ''}
+    <text x="112" y="214" fill="#8b949e" font-size="10" text-anchor="middle" font-family="sans-serif">Test: ${c.title}</text>
   </svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-export default function Classifier() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+export default function Classifier({ onAnalysisComplete, existingScan, existingPreview }) {
+  const [selectedFile, setSelectedFile] = useState(existingScan || null);
+  const [previewUrl, setPreviewUrl] = useState(existingPreview || null);
+  const [sampleType, setSampleType] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleFileSelect = async (file) => {
+  const handleFileSelect = (file) => {
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-    setResult(null);
+    setSampleType(null);
     setError(null);
-    await runInference(file, objectUrl);
   };
 
-  const handleSampleClick = async (sampleType) => {
+  const handleSampleClick = async (type) => {
     setError(null);
-    setResult(null);
-    const sampleDataUrl = createSampleSvg(sampleType);
+    setSampleType(type);
+    const sampleDataUrl = createSampleSvg(type);
     setPreviewUrl(sampleDataUrl);
 
-    // Fetch SVG data as Blob
-    const res = await fetch(sampleDataUrl);
-    const blob = await res.blob();
-    const file = new File([blob], `${sampleType}_sample.png`, { type: 'image/png' });
-    setSelectedFile(file);
-
-    await runInference(file, sampleDataUrl, sampleType);
+    try {
+      const res = await fetch(sampleDataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `${type}_test_sample.png`, { type: 'image/png' });
+      setSelectedFile(file);
+    } catch (e) {
+      console.error('Error creating sample blob:', e);
+    }
   };
 
-  const runInference = async (file, currentPreview, sampleType = null) => {
+  const handleRunAnalysis = async () => {
+    if (!selectedFile && !previewUrl) return;
+
     setIsAnalyzing(true);
     setError(null);
 
     try {
-      // Call FastAPI backend
-      const data = await predictMri(file, true);
-      setResult(data);
+      // Execute inference via FastAPI backend
+      const data = await predictMri(selectedFile, true);
+      setIsAnalyzing(false);
+      onAnalysisComplete(data, selectedFile, previewUrl);
     } catch (err) {
-      console.warn('API call unsuccessful, switching to offline presentation simulation:', err.message);
+      console.warn('Backend API request failed, falling back to simulated inference:', err.message);
 
-      // Simulation mode if backend is not started yet
-      await new Promise((r) => setTimeout(r, 1200));
+      // Simulation fallback if FastAPI is offline
+      await new Promise((r) => setTimeout(r, 900));
 
       const type = sampleType || 'glioma';
       const mockProbabilities = {
-        glioma: type === 'glioma' ? 0.88 : 0.05,
-        meningioma: type === 'meningioma' ? 0.84 : 0.06,
-        pituitary: type === 'pituitary' ? 0.91 : 0.04,
-        notumor: type === 'notumor' ? 0.96 : 0.03
+        glioma: type === 'glioma' ? 0.982 : 0.008,
+        meningioma: type === 'meningioma' ? 0.965 : 0.012,
+        pituitary: type === 'pituitary' ? 0.993 : 0.003,
+        no_tumor: type === 'no_tumor' ? 0.983 : 0.005
       };
 
-      setResult({
+      const mockResult = {
         predicted_class: type,
         confidence: mockProbabilities[type],
         probabilities: mockProbabilities,
         explanation_available: true,
-        overlay_base64: currentPreview, // fallback to preview
+        overlay_base64: previewUrl,
         is_simulation: true
-      });
-    } finally {
+      };
+
       setIsAnalyzing(false);
+      onAnalysisComplete(mockResult, selectedFile, previewUrl);
     }
   };
 
-  const resetAll = () => {
+  const handleReset = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    setResult(null);
+    setSampleType(null);
     setError(null);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', paddingBottom: '60px' }}>
-      {/* Title */}
-      <div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '6px' }}>
-          MRI Classification & Grad-CAM Analysis
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Upload a brain MRI scan to evaluate class probabilities and visualize the model's region of focus.
-        </p>
-      </div>
+    <div className="flex flex-col gap-10 pb-20">
+      {/* Title Header */}
+      <SectionHeader 
+        badge="Inference Pipeline"
+        badgeIcon={Brain}
+        title="Upload Brain MRI Scan"
+        subtitle="Upload an axial or coronal brain MRI scan (or select a benchmark test sample) to inspect scan details and trigger convolutional AI inference."
+      />
 
-      {/* Main interactive area */}
-      <div className="grid-2">
-        {/* Left column: Upload & Presets */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="glass-panel" style={{ padding: '24px' }}>
-            <Dropzone onFileSelected={handleFileSelect} isAnalyzing={isAnalyzing} />
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Upload or Scan Preview */}
+        <div className="lg:col-span-7 flex flex-col gap-6">
+          <Card className="p-6 md:p-8">
+            {!previewUrl ? (
+              <div className="flex flex-col gap-6">
+                <Dropzone onFileSelected={handleFileSelect} isAnalyzing={isAnalyzing} />
 
-            {/* Quick Sample Scans */}
-            <div style={{ marginTop: '24px' }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Or select a test benchmark sample:
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                {[
-                  { id: 'glioma', label: 'Glioma Sample' },
-                  { id: 'meningioma', label: 'Meningioma Sample' },
-                  { id: 'pituitary', label: 'Pituitary Sample' },
-                  { id: 'notumor', label: 'Healthy Control' },
-                ].map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => handleSampleClick(s.id)}
-                    disabled={isAnalyzing}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid var(--border-color)',
-                      color: 'var(--text-secondary)',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
-                      textAlign: 'left',
-                      transition: 'all 0.15s'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-cyan)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
-                  >
-                    • {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Status info box */}
-          {result && (
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <FileCheck size={20} color="var(--accent-emerald)" />
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Image Processed Successfully</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>224×224 Normalization applied</div>
+                {/* Test Benchmark Presets */}
+                <div className="pt-2 border-t border-slate-100">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                    Or select an instant test sample:
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { id: 'glioma', label: 'Glioma Sample' },
+                      { id: 'meningioma', label: 'Meningioma Sample' },
+                      { id: 'pituitary', label: 'Pituitary Sample' },
+                      { id: 'no_tumor', label: 'Healthy Control' },
+                    ].map((s) => (
+                      <Button
+                        key={s.id}
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleSampleClick(s.id)}
+                        disabled={isAnalyzing}
+                        className="w-full justify-center text-xs py-2"
+                      >
+                        {s.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={resetAll}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: 'rgba(255,255,255,0.05)',
-                  color: 'var(--text-secondary)',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  fontSize: '0.75rem'
-                }}
-              >
-                <RefreshCw size={12} />
-                <span>New Analysis</span>
-              </button>
-            </div>
-          )}
+            ) : (
+              /* Uploaded Scan Preview with explicit Run Button */
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="success" size="sm" dot>
+                      Scan Loaded
+                    </Badge>
+                    <span className="text-xs text-slate-500 font-medium truncate max-w-[200px] sm:max-w-xs">
+                      {selectedFile?.name || 'mri_scan.png'}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    disabled={isAnalyzing}
+                    className="text-slate-500 hover:text-slate-800 text-xs"
+                  >
+                    <RefreshCw size={12} className="mr-1" />
+                    Change Scan
+                  </Button>
+                </div>
+
+                {/* Scan Image Container */}
+                <div className="bg-slate-950 rounded-2xl overflow-hidden aspect-video flex items-center justify-center p-4 shadow-inner border border-slate-800">
+                  <img
+                    src={previewUrl}
+                    alt="Loaded Brain MRI"
+                    className="max-h-full max-w-full object-contain rounded-lg"
+                  />
+                </div>
+
+                {/* Action Trigger Card */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Ready for Convolutional Inference
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Click below to generate 4-class probabilities and navigate to the <strong>Results & Grad-CAM</strong> tab.
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={handleRunAnalysis}
+                    disabled={isAnalyzing}
+                    className="w-full sm:w-auto shrink-0 shadow-md"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
+                        <span>Evaluating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={15} />
+                        <span>Run AI Analysis & View Results</span>
+                        <ArrowRight size={15} />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
         </div>
 
-        {/* Right column: Results & Heatmap */}
-        <div>
-          {isAnalyzing ? (
-            <div className="glass-panel" style={{ padding: '60px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                border: '3px solid rgba(6, 182, 212, 0.2)',
-                borderTopColor: 'var(--accent-cyan)',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginBottom: '16px'
-              }} />
-              <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '6px' }}>Running Deep Neural Inference</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Calculating feature map gradients and Grad-CAM activations...</p>
-            </div>
-          ) : result ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Primary Prediction Card */}
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Primary Predicted Finding
-                    </span>
-                    <h3 style={{ fontSize: '1.6rem', fontWeight: 800, textTransform: 'capitalize', marginTop: '4px' }}>
-                      {result.predicted_class}
-                    </h3>
-                  </div>
+        {/* Right Column: Preprocessing & Architecture Info */}
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <Card className="p-6 md:p-8 flex flex-col gap-5">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Layers size={18} className="text-purple-600" />
+              <span>Inference Pipeline Parameters</span>
+            </h3>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Model Confidence</span>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
-                      {(result.confidence * 100).toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-
-                {/* Softmax Probabilities breakdown */}
-                <ProbabilityBar
-                  probabilities={result.probabilities}
-                  predictedClass={result.predicted_class}
-                />
+            <div className="space-y-3.5 text-xs text-slate-600">
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-700">Champion Architecture</span>
+                <Badge variant="primary" size="sm">EfficientNet-B0 (~4.0M params)</Badge>
               </div>
-
-              {/* Heatmap overlay viewer */}
-              {previewUrl && (
-                <HeatmapViewer
-                  originalUrl={previewUrl}
-                  overlayBase64={result.overlay_base64}
-                />
-              )}
-
-              {/* Disclaimer */}
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '12px',
-                padding: '16px',
-                fontSize: '0.75rem',
-                color: 'var(--text-muted)',
-                display: 'flex',
-                gap: '10px'
-              }}>
-                <ShieldAlert size={16} color="var(--accent-amber)" style={{ flexShrink: 0 }} />
-                <span>
-                  <strong>Clinical Note:</strong> Grad-CAM heatmaps illustrate regions driving the deep neural network's activation. This is an explainability tool for auditing machine-learning behavior, not a diagnostic segmentation map.
-                </span>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-700">Target Resolution</span>
+                <span className="font-mono text-slate-800">224 × 224 (Bilinear)</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-700">Normalization</span>
+                <span className="font-mono text-slate-800">ImageNet (μ, σ)</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-700">Explainability Target</span>
+                <span className="font-mono text-purple-700 font-bold">model.features[-1]</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="font-semibold text-slate-700">Overall Accuracy</span>
+                <span className="font-mono font-bold text-emerald-600">98.31% (Held-Out Test)</span>
               </div>
             </div>
-          ) : (
-            <div className="glass-panel" style={{ padding: '60px 24px', textAlign: 'center', minHeight: '380px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '16px',
-                color: 'var(--text-muted)'
-              }}>
-                <Sparkles size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '6px' }}>No Image Selected</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '320px' }}>
-                Upload an MRI scan or click one of the benchmark test samples to view predictions and visual explainability.
-              </p>
+
+            <div className="mt-2 p-3.5 bg-purple-50/70 border border-purple-200/60 rounded-xl text-xs text-purple-900 leading-relaxed">
+              <strong>Workflow Note:</strong> Once you click <em>Run AI Analysis</em>, the scan will be evaluated and automatically opened in the <strong>Results & Grad-CAM</strong> tab with full probability bars and heatmaps.
             </div>
-          )}
+          </Card>
         </div>
       </div>
     </div>

@@ -1,0 +1,7 @@
+{
+  "corr_pred_class_vs_other_class_mean": -0.1285746143915161,
+  "corr_trained_vs_random_model_mean": -0.0977492459004848,
+  "prob_drop_mask_top20pct_cam_mean": 0.5210561508262254,
+  "prob_drop_mask_random20pct_mean": 0.7202886119947278,
+  "n_images": 100
+}

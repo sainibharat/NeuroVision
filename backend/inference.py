@@ -1,6 +1,6 @@
 """
 Backend inference manager for NeuroVision.
-Maintains a singleton Predictor instance loading the trained EfficientNet-B0 model.
+Maintains a singleton Predictor instance to load the trained model once on startup.
 """
 
 import os
@@ -18,7 +18,8 @@ _predictor_instance = None
 
 def get_predictor() -> NeuroVisionPredictor:
     """
-    Returns the cached NeuroVisionPredictor singleton loaded with the best trained model.
+    Returns the cached NeuroVisionPredictor singleton.
+    Loads artifacts/best_model.pth and artifacts/class_names.json on first access.
     """
     global _predictor_instance
     if _predictor_instance is None:
@@ -26,7 +27,7 @@ def get_predictor() -> NeuroVisionPredictor:
         classes_path = os.path.join(PROJECT_ROOT, "artifacts", "class_names.json")
         _predictor_instance = NeuroVisionPredictor(
             model_path=model_path,
-            class_names_path=classes_path,
-            model_type="efficientnet_b0"
+            class_names_path=classes_path
         )
+        _predictor_instance.model_type = "EfficientNet-B0"
     return _predictor_instance

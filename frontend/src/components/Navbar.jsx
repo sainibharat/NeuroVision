@@ -1,90 +1,87 @@
 import React from 'react';
-import { Activity, Brain, FileText, BarChart3 } from 'lucide-react';
+import { Brain, CheckCircle2 } from 'lucide-react';
+import Button from './ui/Button';
 
-export default function Navbar({ activeTab, setActiveTab, apiOnline }) {
-  const tabs = [
-    { id: 'home', label: 'Overview', icon: Brain },
-    { id: 'classify', label: 'Classify & Explain', icon: Activity },
-    { id: 'model', label: 'Model Benchmarks', icon: BarChart3 },
-    { id: 'docs', label: 'Documentation', icon: FileText },
+export default function Navbar({ activeTab, setActiveTab, apiOnline, hasResults }) {
+  const navItems = [
+    { id: 'home', label: 'Overview' },
+    { id: 'classify', label: 'Classifier' },
+    { id: 'results', label: 'Results & Grad-CAM', badge: hasResults },
+    { id: 'model', label: 'Science & Metrics' },
   ];
 
   return (
-    <nav style={{
-      borderBottom: '1px solid var(--border-color)',
-      background: 'rgba(10, 14, 23, 0.85)',
-      backdropFilter: 'blur(16px)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      padding: '16px 0'
-    }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <header className="relative z-50 bg-transparent py-5">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        {/* Brand Logo */}
         <div 
           onClick={() => setActiveTab('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+          className="flex items-center gap-3 cursor-pointer group"
         >
-          <div style={{
-            background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-            borderRadius: '12px',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)'
-          }}>
-            <Brain size={24} color="#ffffff" />
+          <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center text-white shadow-md shadow-slate-900/10 group-hover:scale-105 transition-transform duration-200">
+            <Brain size={22} strokeWidth={2.2} />
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <div className="flex flex-col">
+            <span className="text-xl font-extrabold tracking-tight text-slate-950">
               NeuroVision
-            </h1>
-            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Explainable Deep Learning for Brain MRI</p>
+            </span>
+            <span className="text-[0.7rem] font-semibold text-slate-500 uppercase tracking-widest -mt-1">
+              Explainable AI
+            </span>
           </div>
         </div>
 
-        {/* Tab buttons */}
-        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+        {/* Center Navigation Links */}
+        <nav className="hidden md:flex items-center gap-8">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
             return (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  transition: 'all 0.2s',
-                  background: isActive ? 'linear-gradient(135deg, #3b82f6, #06b6d4)' : 'transparent',
-                  color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                }}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`relative py-1.5 text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                  isActive 
+                    ? 'text-slate-950' 
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
-                <Icon size={16} />
-                <span>{tab.label}</span>
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" title="Analysis Ready" />
+                )}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-950 rounded-full" />
+                )}
               </button>
             );
           })}
-        </div>
+        </nav>
 
-        {/* Backend Status indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: apiOnline ? '#10b981' : '#f59e0b',
-            boxShadow: apiOnline ? '0 0 10px #10b981' : '0 0 10px #f59e0b'
-          }} />
-          <span>{apiOnline ? 'FastAPI Connected' : 'Local Standby'}</span>
+        {/* Right Action Pills */}
+        <div className="flex items-center gap-3">
+          {/* Status indicator pill */}
+          <div className="hidden sm:inline-flex items-center gap-2 bg-white/80 border border-slate-900/10 rounded-full px-4 py-2 text-xs font-semibold text-slate-700 backdrop-blur-md shadow-sm">
+            <span 
+              className={`w-2 h-2 rounded-full ${
+                apiOnline 
+                  ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' 
+                  : 'bg-amber-500'
+              }`} 
+            />
+            <span>{apiOnline ? 'FastAPI Online' : 'Connecting API'}</span>
+          </div>
+
+          {/* Primary Action Button */}
+          <Button 
+            variant="primary"
+            size="sm"
+            onClick={() => setActiveTab('classify')}
+            className="text-xs px-4 py-2"
+          >
+            Classify MRI
+          </Button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

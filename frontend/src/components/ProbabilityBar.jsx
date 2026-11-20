@@ -1,74 +1,57 @@
 import React from 'react';
 
 const CLASS_CONFIG = {
-  glioma: { label: 'Glioma', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.15)' },
-  meningioma: { label: 'Meningioma', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-  pituitary: { label: 'Pituitary Tumor', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' },
-  notumor: { label: 'No Tumor (Normal)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
-  no_tumor: { label: 'No Tumor (Normal)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
+  glioma: { label: 'Glioma', color: '#f43f5e', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200' },
+  meningioma: { label: 'Meningioma', color: '#f59e0b', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200' },
+  pituitary: { label: 'Pituitary Tumor', color: '#8b5cf6', bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200' },
+  no_tumor: { label: 'Healthy / No Tumor', color: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200' },
+  notumor: { label: 'Healthy / No Tumor', color: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200' },
 };
 
 export default function ProbabilityBar({ probabilities = {}, predictedClass = '' }) {
   const entries = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="flex flex-col gap-4">
       {entries.map(([clsKey, prob]) => {
         const config = CLASS_CONFIG[clsKey.toLowerCase()] || {
           label: clsKey,
           color: '#3b82f6',
-          bg: 'rgba(59, 130, 246, 0.15)',
+          bg: 'bg-blue-50',
+          text: 'text-blue-600',
+          border: 'border-blue-200'
         };
         const percentage = (prob * 100).toFixed(1);
         const isPredicted = clsKey.toLowerCase() === predictedClass.toLowerCase();
 
         return (
-          <div key={clsKey} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontWeight: isPredicted ? 700 : 500, color: isPredicted ? '#fff' : 'var(--text-secondary)' }}>
+          <div key={clsKey} className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-sm">
+              <div className="flex items-center gap-2.5">
+                <span className={`font-semibold ${isPredicted ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>
                   {config.label}
                 </span>
                 {isPredicted && (
-                  <span style={{
-                    fontSize: '0.65rem',
-                    background: config.color,
-                    color: '#fff',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase'
-                  }}>
-                    Predicted
+                  <span className={`text-[0.65rem] font-extrabold uppercase px-2 py-0.5 rounded-full border ${config.bg} ${config.text} ${config.border}`}>
+                    Primary Prediction
                   </span>
                 )}
               </div>
-              <span style={{
-                fontFamily: 'var(--font-mono)',
-                fontWeight: 600,
-                color: isPredicted ? config.color : 'var(--text-muted)'
-              }}>
+              <span className={`font-mono font-bold ${isPredicted ? config.text : 'text-slate-500'}`}>
                 {percentage}%
               </span>
             </div>
 
-            {/* Progress Bar Container */}
-            <div style={{
-              width: '100%',
-              height: '8px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '9999px',
-              overflow: 'hidden',
-              border: isPredicted ? `1px solid ${config.color}50` : 'none'
-            }}>
-              <div style={{
-                height: '100%',
-                width: `${percentage}%`,
-                backgroundColor: config.color,
-                borderRadius: '9999px',
-                transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: isPredicted ? `0 0 10px ${config.color}80` : 'none'
-              }} />
+            {/* Progress Track */}
+            <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700 ease-out"
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: config.color,
+                  boxShadow: isPredicted ? `0 0 10px ${config.color}60` : 'none',
+                }}
+              />
             </div>
           </div>
         );

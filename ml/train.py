@@ -1,25 +1,21 @@
 """
-NeuroVision Training Pipeline (100% aligned with Notebook 04 recipe).
+NeuroVision Training Pipeline (Notebooks 02, 03, 04).
 
-Includes:
+Implements:
+- Class-weighted CrossEntropyLoss for imbalanced tumor distributions
+- AdamW optimizer + ReduceLROnPlateau scheduler tracking validation macro-F1
 - Two-stage transfer learning (Stage 1: head-only -> Stage 2: fine-tuning)
-- CrossEntropyLoss with class weighting for imbalanced tumor distributions
-- AdamW optimizer + ReduceLROnPlateau scheduler
-- Early stopping and checkpointing driven by validation macro-F1 score
+- Early stopping and model checkpointing
 """
 
 import os
-import json
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
-
-from ml.models import build_effnet_b0, build_resnet18, BaselineCNN
-from ml.dataset import create_dataloaders_from_directory
 
 
 @torch.no_grad()
@@ -29,10 +25,7 @@ def evaluate_epoch(
     criterion: nn.Module,
     device: str
 ) -> Tuple[float, float, float]:
-    """
-    Evaluates loss, macro-F1, and accuracy over an entire DataLoader.
-    Matches evaluate() in Notebook 04.
-    """
+    """Evaluates loss, macro-F1, and accuracy over an entire DataLoader."""
     model.eval()
     loss_sum = 0.0
     all_targets = []
@@ -70,8 +63,7 @@ def fit_stage(
     classes: List[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    Core training loop tracking validation macro-F1.
-    Saves the checkpoint whenever validation macro-F1 improves.
+    Fits model stage and saves checkpoint whenever validation macro-F1 reaches a new high.
     """
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=weight_decay)
@@ -95,7 +87,7 @@ def fit_stage(
                     m.eval()
 
         for x, y in train_loader:
-            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
+            x, y = x.to(device), y.to(device)
             optimizer.zero_grad(set_to_none=True)
 
             with torch.autocast(device_type="cuda", enabled=(device == "cuda")):

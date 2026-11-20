@@ -84,3 +84,5 @@ dataset/original/*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+!artifacts/best_model.pth

@@ -1,215 +1,186 @@
 import React from 'react';
-import { BarChart3, CheckCircle, Database, Layers, ShieldCheck, Cpu } from 'lucide-react';
+import { BarChart3, Database, Layers, ShieldCheck, Cpu } from 'lucide-react';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function ModelInfo() {
   const models = [
     {
       name: 'Baseline CNN',
       type: 'Custom 4-Block CNN',
-      params: '~2.5M',
+      params: '~1.17M',
       valAccuracy: '92.04%',
       valF1: '0.9222',
-      role: 'Baseline Benchmark'
+      role: 'Baseline Benchmark',
+      badgeVariant: 'default'
     },
     {
       name: 'ResNet-18',
       type: 'Transfer Learning (ImageNet)',
-      params: '11.2M',
+      params: '11.18M',
       valAccuracy: '96.64%',
       valF1: '0.9657',
-      role: 'Comparative Backbone'
+      role: 'Comparative Backbone',
+      badgeVariant: 'blue'
     },
     {
-      name: 'EfficientNet-B0 (Selected)',
+      name: 'EfficientNet-B0 (Champion)',
       type: 'Transfer Learning (ImageNet, Fine-Tuned)',
-      params: '4.0M',
+      params: '4.01M',
       valAccuracy: '98.43%',
       valF1: '0.9830',
       role: 'Production Architecture',
-      highlight: true
+      highlight: true,
+      badgeVariant: 'primary'
     }
   ];
 
+  const stats = [
+    { label: 'Overall Test Accuracy', value: '98.31%', subtext: '874 / 889 Correct Scans', color: 'text-emerald-600' },
+    { label: 'Macro-Averaged F1', value: '0.9826', subtext: 'Balanced across 4 classes', color: 'text-slate-900' },
+    { label: 'Tumor Sensitivity', value: '99.61%', subtext: '768 of 771 Tumors Detected', color: 'text-blue-600' },
+    { label: 'Healthy Specificity', value: '98.31%', subtext: '116 of 118 Controls Verified', color: 'text-purple-600' },
+  ];
+
   const confusionData = [
-    { label: 'Glioma', row: [323, 4, 1, 0], total: 328 },
-    { label: 'Meningioma', row: [5, 214, 1, 1], total: 221 },
-    { label: 'No Tumor', row: [1, 0, 116, 1], total: 118 },
-    { label: 'Pituitary', row: [0, 0, 1, 221], total: 222 }
+    { label: 'Glioma', row: [323, 4, 1, 0] },
+    { label: 'Meningioma', row: [5, 214, 1, 1] },
+    { label: 'No Tumor', row: [1, 0, 116, 1] },
+    { label: 'Pituitary', row: [0, 0, 1, 221] }
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingBottom: '60px' }}>
-      {/* Header */}
-      <div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '6px' }}>
-          Model Architecture & Evaluation Benchmarks
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Comparative analysis and held-out test set performance (889 scans) from Colab Notebooks 01–06.
-        </p>
+    <div className="flex flex-col gap-10 pb-20">
+      {/* Page Header */}
+      <SectionHeader
+        badge="Benchmark Evaluation"
+        badgeIcon={BarChart3}
+        title="Science & Clinical Metrics"
+        subtitle="Quantitative performance metrics evaluated strictly on test dataset."
+      />
+
+      {/* 4 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {stats.map((s, idx) => (
+          <Card key={idx} className="text-center p-6 hover:-translate-y-0.5 transition-transform duration-200">
+            <span className="text-[0.72rem] font-bold text-slate-500 uppercase tracking-wider block">
+              {s.label}
+            </span>
+            <div className={`text-4xl font-extrabold font-mono my-2 ${s.color}`}>
+              {s.value}
+            </div>
+            <span className="text-xs text-slate-400 block">{s.subtext}</span>
+          </Card>
+        ))}
       </div>
 
-      {/* Primary Test Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div className="glass-panel" style={{ padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Test Accuracy</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-emerald)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-            98.31%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>874 / 889 Correct</div>
-        </div>
-
-        <div className="glass-panel" style={{ padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Macro F1-Score</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-            0.9826
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Balanced across 4 classes</div>
-        </div>
-
-        <div className="glass-panel" style={{ padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Tumor Sensitivity</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-blue)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-            99.61%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>True Positive Tumor Rate</div>
-        </div>
-
-        <div className="glass-panel" style={{ padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Healthy Specificity</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#a855f7', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-            98.31%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>True Negative Healthy Rate</div>
-        </div>
-      </div>
-
-      {/* Comparison Table */}
-      <div className="glass-panel" style={{ padding: '28px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Cpu size={20} color="var(--accent-cyan)" />
-          Validation Architecture Comparison (Notebooks 02, 03, 04)
+      {/* Architecture Comparison Table */}
+      <Card className="p-6 md:p-8">
+        <h3 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2.5">
+          <Cpu size={20} className="text-purple-600" />
+          <span>Model Architecture Comparison</span>
         </h3>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '12px 16px' }}>Architecture</th>
-                <th style={{ padding: '12px 16px' }}>Approach</th>
-                <th style={{ padding: '12px 16px' }}>Parameters</th>
-                <th style={{ padding: '12px 16px' }}>Validation Accuracy</th>
-                <th style={{ padding: '12px 16px' }}>Validation Macro F1</th>
-                <th style={{ padding: '12px 16px' }}>Outcome</th>
+              <tr className="border-b border-slate-200 text-xs font-bold uppercase text-slate-400">
+                <th className="py-3 px-4">Architecture</th>
+                <th className="py-3 px-4">Approach</th>
+                <th className="py-3 px-4">Parameters</th>
+                <th className="py-3 px-4">Val Accuracy</th>
+                <th className="py-3 px-4">Val Macro-F1</th>
+                <th className="py-3 px-4">Role</th>
               </tr>
             </thead>
             <tbody>
               {models.map((m, idx) => (
                 <tr
                   key={idx}
-                  style={{
-                    borderBottom: '1px solid var(--border-color)',
-                    background: m.highlight ? 'rgba(6, 182, 212, 0.05)' : 'transparent',
-                  }}
+                  className={`border-b border-slate-100 transition-colors ${m.highlight ? 'bg-purple-50/60 font-semibold' : 'hover:bg-slate-50/60'
+                    }`}
                 >
-                  <td style={{ padding: '14px 16px', fontWeight: 600, color: m.highlight ? 'var(--accent-cyan)' : '#fff' }}>
+                  <td className={`py-4 px-4 ${m.highlight ? 'text-purple-900 font-bold' : 'text-slate-900'}`}>
                     {m.name}
                   </td>
-                  <td style={{ padding: '14px 16px', color: 'var(--text-secondary)' }}>{m.type}</td>
-                  <td style={{ padding: '14px 16px', fontFamily: 'var(--font-mono)' }}>{m.params}</td>
-                  <td style={{ padding: '14px 16px', fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#10b981' }}>{m.valAccuracy}</td>
-                  <td style={{ padding: '14px 16px', fontFamily: 'var(--font-mono)' }}>{m.valF1}</td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      padding: '4px 10px',
-                      borderRadius: '9999px',
-                      background: m.highlight ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.05)',
-                      color: m.highlight ? 'var(--accent-cyan)' : 'var(--text-secondary)'
-                    }}>
+                  <td className="py-4 px-4 text-slate-600">{m.type}</td>
+                  <td className="py-4 px-4 font-mono text-slate-700">{m.params}</td>
+                  <td className="py-4 px-4 font-mono font-bold text-emerald-600">{m.valAccuracy}</td>
+                  <td className="py-4 px-4 font-mono text-slate-700">{m.valF1}</td>
+                  <td className="py-4 px-4">
+                    <Badge variant={m.badgeVariant} size="sm">
                       {m.role}
-                    </span>
+                    </Badge>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
-      {/* Confusion Matrix & Class Breakdown */}
-      <div className="grid-2">
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BarChart3 size={18} color="var(--accent-cyan)" />
-            Official Test Confusion Matrix
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
-            Held-out test set (n = 889 scans) evaluated in Notebook 05:
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '8px',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.85rem',
-            textAlign: 'center'
-          }}>
-            {confusionData.flatMap((c, rIdx) =>
-              c.row.map((val, cIdx) => {
-                const isMatch = rIdx === cIdx;
-                return (
-                  <div
-                    key={`${rIdx}-${cIdx}`}
-                    style={{
-                      background: isMatch ? 'rgba(16, 185, 129, 0.2)' : val > 0 ? 'rgba(244, 63, 94, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                      border: `1px solid ${isMatch ? 'rgba(16, 185, 129, 0.4)' : val > 0 ? 'rgba(244, 63, 94, 0.3)' : 'rgba(255,255,255,0.05)'}`,
-                      color: isMatch ? '#34d399' : val > 0 ? '#fb7185' : 'var(--text-muted)',
-                      padding: '14px 6px',
-                      borderRadius: '8px',
-                      fontWeight: isMatch ? 700 : 400
-                    }}
-                  >
-                    <div style={{ fontSize: '1.1rem' }}>{val}</div>
-                  </div>
-                );
-              })
-            )}
+      {/* Confusion Matrix & Grad-CAM Methodology */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Confusion Matrix */}
+        <Card className="p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2.5">
+              <BarChart3 size={20} className="text-blue-600" />
+              <span>Official Test Confusion Matrix</span>
+            </h3>
+            <p className="text-xs text-slate-500 mb-6">
+              Held-out test split (n = 889 scans):
+            </p>
+            <div className="grid grid-cols-4 gap-2 text-center font-mono">
+              {confusionData.flatMap((c, rIdx) =>
+                c.row.map((val, cIdx) => {
+                  const isMatch = rIdx === cIdx;
+                  return (
+                    <div
+                      key={`${rIdx}-${cIdx}`}
+                      className={`p-3.5 rounded-xl border text-base font-bold transition-transform duration-150 hover:scale-105 ${isMatch
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        : val > 0
+                          ? 'bg-rose-50 border-rose-200 text-rose-600'
+                          : 'bg-white/60 border-slate-200 text-slate-400'
+                        }`}
+                    >
+                      {val}
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
 
-          <div style={{ marginTop: '12px', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-            Order: Glioma (328) • Meningioma (221) • No Tumor (118) • Pituitary (222)
+          <div className="mt-5 text-[0.72rem] text-slate-400 text-center">
+            Rows: Ground Truth | Columns: Predictions (Glioma • Meningioma • No Tumor • Pituitary)
           </div>
-        </div>
+        </Card>
 
-        {/* Explainability Math & Methodology */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Layers size={18} color="var(--accent-purple)" />
-            Grad-CAM Explainability (Notebook 06)
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '14px' }}>
-            Grad-CAM targets <code>model.features[-1]</code> on EfficientNet-B0 (last convolutional block, generating 7×7 feature maps):
-          </p>
-          <div style={{
-            background: 'rgba(0,0,0,0.3)',
-            padding: '12px',
-            borderRadius: '8px',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.8rem',
-            color: 'var(--accent-cyan)',
-            marginBottom: '16px'
-          }}>
-            L_Grad-CAM = ReLU( ∑ α_k · A_k )
+        {/* Grad-CAM Methodology */}
+        <Card className="p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2.5">
+              <Layers size={20} className="text-purple-600" />
+              <span>Grad-CAM Mathematical Foundation</span>
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed mb-4">
+              Grad-CAM computes the gradient of class score \(y^c\) with respect to feature maps \(A^k\) of the final convolutional block (<code className="bg-slate-100 text-purple-700 px-1 py-0.5 rounded font-mono">model.features[-1]</code>, 7×7 feature map):
+            </p>
+
+            <div className="bg-slate-900 text-white p-3.5 rounded-xl font-mono text-xs font-semibold mb-4 text-center shadow-inner">
+              L_Grad-CAM = ReLU( ∑ α_k · A_k )
+            </div>
+
+            <ul className="text-xs text-slate-600 space-y-2 list-disc list-inside leading-relaxed">
+              <li><strong className="text-slate-900">Global Average Pooling:</strong> Calculates channel importance weights \(\alpha_k\) from backpropagated class gradients.</li>
+              <li><strong className="text-slate-900">ReLU Rectification:</strong> Retains features positively correlated with the target tumor class score.</li>
+              <li><strong className="text-slate-900">Sanity Validated:</strong> Passed model randomization and class-specificity sanity checks in Kaggle benchmarks.</li>
+            </ul>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            • <strong>Global Average Pooling:</strong> Calculates channel importance weights \(\alpha_k\) from backpropagated class gradients.<br/>
-            • <strong>ReLU Rectification:</strong> Retains features positively correlated with the tumor class score.<br/>
-            • <strong>Upsampling & Jet Colormap:</strong> Scaled bilinearly to 224×224 and blended over the scan at \(\alpha = 0.45\).
-          </p>
-        </div>
+        </Card>
       </div>
     </div>
   );

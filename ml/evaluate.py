@@ -1,12 +1,12 @@
 """
-NeuroVision Model Evaluation & Error Analysis (100% aligned with Notebook 05).
+NeuroVision Model Evaluation & Error Analysis (Notebook 05).
 
 Computes:
 - Overall test accuracy, macro-F1, and balanced accuracy
-- Tumor sensitivity (pooled across all 3 tumor types)
-- Normal tissue specificity (no_tumor true negative rate)
+- True Positive Tumor Sensitivity (pooled across all 3 tumor types)
+- True Negative Healthy Specificity (correctly identifying no_tumor)
 - Per-class precision, recall, F1-score, and support
-- Full confusion matrix
+- 4x4 confusion matrix
 """
 
 from typing import Dict, Any, List
@@ -18,8 +18,7 @@ from sklearn.metrics import (
     classification_report,
     confusion_matrix,
     f1_score,
-    balanced_accuracy_score,
-    precision_recall_fscore_support
+    balanced_accuracy_score
 )
 
 
@@ -30,10 +29,7 @@ def evaluate_test_set(
     class_names: List[str],
     device: str
 ) -> Dict[str, Any]:
-    """
-    Runs a single comprehensive evaluation pass over the held-out test set.
-    Directly produces the metrics stored in artifacts/metrics.json.
-    """
+    """Runs a complete evaluation pass over the held-out test set."""
     model.eval()
     all_targets = []
     all_preds = []
@@ -64,9 +60,7 @@ def evaluate_test_set(
     cm = confusion_matrix(y_true, y_pred).tolist()
 
     # Clinical sensitivity and specificity
-    # Healthy class is "no_tumor"
     no_tumor_idx = class_names.index("no_tumor") if "no_tumor" in class_names else -1
-
     tumor_sensitivity = None
     no_tumor_specificity = None
 

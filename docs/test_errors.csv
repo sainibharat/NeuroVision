@@ -1,0 +1,16 @@
+path,true,pred,confidence
+/content/data/test/glioma/glioma_test_00289.jpg,glioma,no_tumor,0.845
+/content/data/test/glioma/glioma_test_00283.jpg,glioma,meningioma,0.848
+/content/data/test/glioma/glioma_test_00196.jpg,glioma,meningioma,1.0
+/content/data/test/glioma/glioma_test_00172.jpg,glioma,meningioma,0.993
+/content/data/test/glioma/glioma_test_00222.jpg,glioma,meningioma,0.498
+/content/data/test/meningioma/meningioma_test_00218.jpg,meningioma,glioma,0.556
+/content/data/test/meningioma/meningioma_test_00010.jpg,meningioma,no_tumor,0.893
+/content/data/test/meningioma/meningioma_test_00184.jpg,meningioma,pituitary,0.77
+/content/data/test/meningioma/meningioma_test_00166.jpg,meningioma,glioma,0.825
+/content/data/test/meningioma/meningioma_test_00135.jpg,meningioma,glioma,0.735
+/content/data/test/meningioma/meningioma_test_00033.jpg,meningioma,glioma,0.688
+/content/data/test/meningioma/meningioma_test_00050.jpg,meningioma,glioma,0.744
+/content/data/test/no_tumor/no_tumor_test_00074.jpg,no_tumor,glioma,0.665
+/content/data/test/no_tumor/no_tumor_test_00006.jpg,no_tumor,pituitary,0.898
+/content/data/test/pituitary/pituitary_test_00078.jpg,pituitary,no_tumor,0.56

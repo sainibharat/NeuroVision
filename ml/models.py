@@ -1,10 +1,8 @@
 """
-NeuroVision Model Architectures (100% aligned with Notebooks 02, 03, 04, 05).
+NeuroVision Model Architectures (Notebooks 02, 03, 04, 05, 06).
 
-Includes:
-1. BaselineCNN: 4-block CNN (1,174,244 parameters, from Notebook 02)
-2. ResNet-18: Pretrained ImageNet transfer backbone with dropout head (from Notebook 03)
-3. EfficientNet-B0: Selected champion architecture (4,012,672 parameters, from Notebooks 04 & 05)
+Champion Model:
+- EfficientNet-B0 adapted for 4-class Brain MRI classification.
 """
 
 import torch
@@ -12,8 +10,37 @@ import torch.nn as nn
 from torchvision import models
 
 
+def build_model(n_classes: int = 4) -> nn.Module:
+    """
+    EfficientNet-B0 with a 4-class head. Same architecture as notebooks 04-06.
+    weights=None: the trained weights come from artifacts/best_model.pth.
+    """
+    m = models.efficientnet_b0(weights=None)
+    m.classifier[1] = nn.Linear(m.classifier[1].in_features, n_classes)
+    return m
+
+
+def build_effnet_b0(n_classes: int = 4, pretrained: bool = False) -> nn.Module:
+    """Alias for build_model."""
+    weights = models.EfficientNet_B0_Weights.IMAGENET1K_V1 if pretrained else None
+    m = models.efficientnet_b0(weights=weights)
+    m.classifier[1] = nn.Linear(m.classifier[1].in_features, n_classes)
+    return m
+
+
+def build_resnet18(n_classes: int = 4, pretrained: bool = False) -> nn.Module:
+    """ResNet-18 comparison model from Notebook 03."""
+    weights = models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
+    m = models.resnet18(weights=weights)
+    m.fc = nn.Sequential(
+        nn.Dropout(0.3),
+        nn.Linear(m.fc.in_features, n_classes)
+    )
+    return m
+
+
 def conv_block(in_channels: int, out_channels: int) -> nn.Sequential:
-    """Standard double-conv block with BatchNorm and MaxPool from Notebook 02."""
+    """Double-conv block with BatchNorm and MaxPool from Notebook 02."""
     return nn.Sequential(
         nn.Conv2d(in_channels, out_channels, 3, padding=1, bias=False),
         nn.BatchNorm2d(out_channels),
@@ -26,11 +53,7 @@ def conv_block(in_channels: int, out_channels: int) -> nn.Sequential:
 
 
 class BaselineCNN(nn.Module):
-    """
-    Baseline Convolutional Neural Network from Notebook 02.
-    Architecture: 4 double-conv blocks + AdaptiveAvgPool + Linear head.
-    Total parameters: ~1.17M
-    """
+    """Custom 4-block CNN baseline from Notebook 02."""
     def __init__(self, n_classes: int = 4):
         super().__init__()
         self.features = nn.Sequential(
@@ -48,32 +71,3 @@ class BaselineCNN(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.head(self.features(x))
-
-
-def build_resnet18(n_classes: int = 4, pretrained: bool = False) -> nn.Module:
-    """
-    Pretrained ResNet-18 from Notebook 03.
-    Replaces model.fc with Dropout(0.3) + Linear(512, n_classes).
-    Target layer for Grad-CAM: model.layer4[-1]
-    """
-    weights = models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
-    model = models.resnet18(weights=weights)
-    model.fc = nn.Sequential(
-        nn.Dropout(0.3),
-        nn.Linear(model.fc.in_features, n_classes)
-    )
-    return model
-
-
-def build_effnet_b0(n_classes: int = 4, pretrained: bool = False) -> nn.Module:
-    """
-    Pretrained EfficientNet-B0 (Champion model from Notebooks 04 & 05).
-    Replaces model.classifier[1] with Linear(1280, n_classes).
-    Retains built-in Dropout(0.2) in model.classifier[0].
-    Target layer for Grad-CAM: model.features[-1]
-    """
-    weights = models.EfficientNet_B0_Weights.IMAGENET1K_V1 if pretrained else None
-    model = models.efficientnet_b0(weights=weights)
-    in_features = model.classifier[1].in_features
-    model.classifier[1] = nn.Linear(in_features, n_classes)
-    return model

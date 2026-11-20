@@ -1,164 +1,175 @@
 import React from 'react';
-import { ArrowRight, ShieldAlert, Cpu, Sparkles, CheckCircle2, Eye, Database } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Activity } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function Home({ onStartClick }) {
+  const categories = [
+    {
+      title: 'Glioma',
+      desc: 'Infiltrative primary tumors originating in glial cells with irregular contrast enhancement.',
+      variant: 'danger',
+      code: '2,191 Scans in Dataset',
+      badge: 'Category 01'
+    },
+    {
+      title: 'Meningioma',
+      desc: 'Extra-axial tumors arising from meningeal layers with distinct dural tail sign.',
+      variant: 'warning',
+      code: '1,478 Scans in Dataset',
+      badge: 'Category 02'
+    },
+    {
+      title: 'Pituitary Tumor',
+      desc: 'Neuroendocrine tumors in the sella turcica, commonly causing visual field deficits.',
+      variant: 'primary',
+      code: '1,485 Scans in Dataset',
+      badge: 'Category 03'
+    },
+    {
+      title: 'Healthy / No Tumor',
+      desc: 'Normal anatomical control scans exhibiting symmetrical ventricles and clear parenchyma.',
+      variant: 'success',
+      code: '787 Scans in Dataset',
+      badge: 'Category 04'
+    }
+  ];
+
+  const steps = [
+    { step: '01', title: 'MRI Scan Ingestion', desc: 'Accepts axial/coronal 2D slice images via drag-and-drop', icon: '📥' },
+    { step: '02', title: 'Image Normalization', desc: 'Bilinear 224×224 resize & ImageNet normalization', icon: '⚙️' },
+    { step: '03', title: 'Deep CNN Inference', desc: 'Fine-tuned EfficientNet-B0 backbone predicts probabilities', icon: '🧠' },
+    { step: '04', title: 'Grad-CAM Activation', desc: 'Convolutional gradients generate spatial heatmaps', icon: '🔥' },
+    { step: '05', title: 'Clinical Review', desc: 'Interactive inspection with opacity and comparison sliders', icon: '📊' }
+  ];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '64px', paddingBottom: '60px' }}>
-      {/* Hero Section */}
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 0 20px',
-        maxWidth: '850px',
-        margin: '0 auto'
-      }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '6px 14px',
-          borderRadius: '9999px',
-          background: 'rgba(6, 182, 212, 0.1)',
-          border: '1px solid rgba(6, 182, 212, 0.3)',
-          color: 'var(--accent-cyan)',
-          fontSize: '0.8rem',
-          fontWeight: 600,
-          marginBottom: '24px'
-        }}>
-          <Sparkles size={14} />
-          <span>Explainable Deep Learning Prototype</span>
+    <div className="flex flex-col gap-16 md:gap-20 pb-20">
+      {/* Hero Section with clean 3D neural brain background */}
+      <div 
+        className="relative rounded-3xl overflow-hidden min-h-[580px] md:min-h-[620px] p-8 md:p-16 grid grid-cols-1 lg:grid-cols-12 items-center gap-10 shadow-[0_30px_70px_-20px_rgba(220,180,220,0.4),0_0_0_1px_rgba(255,255,255,0.95)]"
+        style={{
+          background: `url('/hero-bg-clean.jpg') right center / cover no-repeat`,
+          backgroundColor: '#f6f8fc'
+        }}
+      >
+        {/* Left Content Area */}
+        <div className="lg:col-span-7 flex flex-col gap-6 z-10">
+          <div className="inline-flex">
+            <Badge variant="primary" size="md">
+              <Sparkles size={13} className="mr-1 text-purple-600" />
+              Explainable AI (XAI) for Neuro-Radiology
+            </Badge>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.12]">
+            AI for Precision<br />Brain Tumor Detection
+          </h1>
+
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl">
+            An Explainable Deep Learning platform powered by EfficientNet-B0 transfer learning that classifies brain MRI scans across four distinct pathological categories: <strong>Glioma, Meningioma, Pituitary tumors</strong>, and healthy tissue with <strong>98.3% test accuracy</strong> and transparent Grad-CAM convolutional attention maps.
+          </p>
+
+          <div className="flex items-center gap-4 pt-2">
+            <Button 
+              variant="primary" 
+              size="lg"
+              onClick={onStartClick}
+              icon={ArrowRight}
+              iconPosition="right"
+            >
+              Upload MRI Scan
+            </Button>
+          </div>
         </div>
 
-        <h1 style={{
-          fontSize: '2.8rem',
-          fontWeight: 800,
-          letterSpacing: '-0.03em',
-          lineHeight: 1.15,
-          marginBottom: '20px',
-          background: 'linear-gradient(135deg, #ffffff 40%, #94a3b8 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          NeuroVision: Brain Tumor Classification & Explainability
-        </h1>
+        {/* Right Column: 3D illuminated brain with floating badges */}
+        <div className="lg:col-span-5 relative h-full min-h-[380px] lg:min-h-[460px]">
+          {/* Badge 1: Top of Brain */}
+          <div className="floating-badge absolute top-[15%] left-[8%]">
+            <span className="badge-dot" />
+            <span>Grad-CAM Attention</span>
+          </div>
 
-        <p style={{
-          fontSize: '1.15rem',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.6,
-          marginBottom: '36px'
-        }}>
-          A complete deep learning pipeline evaluating brain MRI scans across four distinct categories.
-          Coupled with <strong>Grad-CAM</strong> visual attention maps to ensure interpretability and transparency in neural predictions.
-        </p>
+          {/* Badge 2: Right of Brain */}
+          <div className="floating-badge absolute top-[38%] right-[2%]" style={{ animationDelay: '1.6s' }}>
+            <span className="badge-dot" />
+            <span>98.31% Test Accuracy</span>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-          <button className="glow-btn" onClick={onStartClick} style={{ fontSize: '1rem', padding: '14px 32px' }}>
-            <span>Launch Image Classifier</span>
-            <ArrowRight size={18} />
-          </button>
+          {/* Badge 3: Bottom Left of Brain */}
+          <div className="floating-badge absolute bottom-[24%] left-[22%]" style={{ animationDelay: '3.2s' }}>
+            <span className="badge-dot" />
+            <span>4-Class Tumor XAI</span>
+          </div>
         </div>
       </div>
 
-      {/* Pipeline Diagram */}
-      <div className="glass-panel" style={{ padding: '36px' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px', textAlign: 'center' }}>
-          End-to-End Technical Pipeline
-        </h2>
+      {/* 4 Classification Categories Cards */}
+      <div className="flex flex-col gap-8">
+        <SectionHeader 
+          title="Categorized Brain Pathology Detection"
+          subtitle="Evaluates scans across four clinically verified categories trained on 5,941 MRI scans."
+          centered
+        />
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px',
-          position: 'relative'
-        }}>
-          {[
-            { step: '01', title: 'MRI Ingestion', desc: 'Accepts axial/sagittal 2D brain MRI scans', icon: '📥' },
-            { step: '02', title: 'Preprocessing', desc: 'Resizing to 224x224, ImageNet 3-channel normalization', icon: '⚙️' },
-            { step: '03', title: 'Deep CNN Inference', desc: 'Fine-tuned ResNet18 / EfficientNet-B0 backbone', icon: '🧠' },
-            { step: '04', title: 'Grad-CAM Activation', desc: 'Feature map gradients mapped onto input slice', icon: '🔥' },
-            { step: '05', title: 'Clinical Dashboard', desc: 'Probability scores, overlay viewer, and disclaimer', icon: '📊' }
-          ].map((item, idx) => (
-            <div key={idx} style={{
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>STEP {item.step}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {categories.map((c, i) => (
+            <Card key={i} className="flex flex-col gap-3 hover:-translate-y-1 transition-transform duration-200">
+              <div className="flex justify-between items-center">
+                <Badge variant={c.variant} size="sm">
+                  {c.badge}
+                </Badge>
+                <span className="text-xs font-medium text-slate-400">{c.code}</span>
               </div>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', marginTop: '4px' }}>{item.title}</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{item.desc}</p>
-            </div>
+              <h3 className="text-lg font-bold text-slate-900 mt-1">{c.title}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">{c.desc}</p>
+            </Card>
           ))}
         </div>
       </div>
 
-      {/* Target Classes Cards */}
-      <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
-          Target Classification Categories
-        </h2>
-        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px' }}>
-          Trained on standardized datasets to categorize 4 distinct clinical states
-        </p>
+      {/* Technical Pipeline Flow */}
+      <Card className="p-8 md:p-12">
+        <SectionHeader 
+          title="How NeuroVision Works"
+          subtitle="A reproducible, explainable 5-step machine learning architecture"
+          centered
+          className="mb-10"
+        />
 
-        <div className="grid-2">
-          <div className="glass-panel" style={{ padding: '24px', borderLeft: '4px solid #f43f5e' }}>
-            <span className="badge badge-glioma" style={{ marginBottom: '12px' }}>Category 01</span>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '8px' }}>Glioma</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Primary brain tumor originating from glial cells, typically exhibiting infiltrative margins and heterogeneous contrast enhancement.
-            </p>
-          </div>
-
-          <div className="glass-panel" style={{ padding: '24px', borderLeft: '4px solid #f59e0b' }}>
-            <span className="badge badge-meningioma" style={{ marginBottom: '12px' }}>Category 02</span>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '8px' }}>Meningioma</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Arises from the meninges (membranes enveloping brain and spinal cord). Often well-circumscribed with dural tail enhancement.
-            </p>
-          </div>
-
-          <div className="glass-panel" style={{ padding: '24px', borderLeft: '4px solid #8b5cf6' }}>
-            <span className="badge badge-pituitary" style={{ marginBottom: '12px' }}>Category 03</span>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '8px' }}>Pituitary Tumor</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Develops in the sella turcica within the pituitary gland, frequently presenting with suprasellar extension.
-            </p>
-          </div>
-
-          <div className="glass-panel" style={{ padding: '24px', borderLeft: '4px solid #10b981' }}>
-            <span className="badge badge-notumor" style={{ marginBottom: '12px' }}>Category 04</span>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '8px' }}>No Tumor (Healthy)</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Baseline control scans exhibiting normal ventricular symmetry, parenchymal intensity, and absence of mass effect.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {steps.map((item, i) => (
+            <div 
+              key={i} 
+              className="bg-white/70 border border-slate-200/70 rounded-2xl p-5 flex flex-col gap-2 hover:bg-white transition-colors duration-150"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-2xl">{item.icon}</span>
+                <span className="text-[0.7rem] font-extrabold text-purple-600 uppercase tracking-wider">
+                  STEP {item.step}
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 mt-1">{item.title}</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </Card>
 
-      {/* Clinical Disclaimer */}
-      <div style={{
-        background: 'rgba(244, 63, 94, 0.08)',
-        border: '1px solid rgba(244, 63, 94, 0.25)',
-        borderRadius: '16px',
-        padding: '24px',
-        display: 'flex',
-        gap: '16px',
-        alignItems: 'flex-start'
-      }}>
-        <ShieldAlert size={28} color="#f43f5e" style={{ flexShrink: 0, marginTop: '2px' }} />
+      {/* Clinical Disclaimer Notice */}
+      <div className="bg-white/80 border border-slate-900/10 rounded-2xl p-6 md:p-8 flex items-center gap-5 shadow-sm">
+        <div className="w-11 h-11 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <ShieldCheck size={24} />
+        </div>
         <div>
-          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f43f5e', marginBottom: '4px' }}>
-            Important Medical Research Disclaimer
+          <h4 className="text-sm font-bold text-slate-900 mb-1">
+            Research & Educational Prototype Notice
           </h4>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            NeuroVision is strictly an engineering and educational research prototype. It is not an FDA-cleared diagnostic device and should never replace qualified clinical radiological review. Model confidence scores reflect statistical patterns and not diagnostic certainty.
+          <p className="text-xs text-slate-500 leading-relaxed">
+            NeuroVision is developed as an educational and technical research portfolio system. It is not an FDA-cleared diagnostic medical device and must not be used as a standalone tool for patient diagnosis or surgical treatment planning.
           </p>
         </div>
       </div>
