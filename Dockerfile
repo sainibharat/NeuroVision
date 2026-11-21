@@ -29,5 +29,5 @@ COPY artifacts /app/artifacts
 
 EXPOSE 8000
 
-# Run FastAPI via Uvicorn
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run FastAPI via Uvicorn respecting dynamic cloud $PORT
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
